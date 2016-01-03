@@ -6,7 +6,7 @@ mysql_query("SET CHARACTER SET 'UTF8';");
 mysql_query('SET NAMES UTF8;');
 mysql_query('SET CHARACTER_SET_CLIENT=UTF8;');
 mysql_query('SET CHARACTER_SET_RESULTS=UTF8;');
-mysql_select_db("sensor");
+mysql_select_db("HomeDB");
 date_default_timezone_set('Asia/Taipei');
 		
 $loc="";

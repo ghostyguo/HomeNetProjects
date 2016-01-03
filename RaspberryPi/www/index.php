@@ -6,13 +6,14 @@
 </head>
 <body>
 <?php
-	$db_link = @mysql_connect("localhost", "root", "ksudcc")
-             or die("MySQL Server Error!<br>");  
-	$select_db = @mysql_select_db("HomeDB");
+	//The 'password' is required to be setup according to your own mysql installation
+	$db = mysql_pconnect("localhost","root","password") or 
+		die('[{"Msg":"'.mysql_error().'"}]');
 	mysql_query("SET CHARACTER SET 'UTF8';");	
 	mysql_query('SET NAMES UTF8;');
 	mysql_query('SET CHARACTER_SET_CLIENT=UTF8;');
-	mysql_query('SET CHARACTER_SET_RESULTS=UTF8;');
+	mysql_query('SET CHARACTER_SET_RESULTS=UTF8;');	
+	mysql_select_db("HomeDB");
   
 	echo "<p><b><font size=\"6\" color=\"#0000FF\">HomeNet - Sensor Statistics</font></b></size></p>";
 ?>
@@ -53,7 +54,7 @@
 	echo "<table border = '1'><tr align='center'><b><font color=\"#0000D0\">30 Days Statistics:</font></b><font color=#A0A0A0></font></tr>";
 		
     $sql_query = "SELECT `Date`, AVG(`Temperature`) , AVG(`Humidity`)";
-	$sql_query = $sql_query." FROM `sensor`";
+	$sql_query = $sql_query." FROM `HomeDB`.`sensor`";
 	$sql_query = $sql_query." GROUP BY `Date`";
 	$sql_query = $sql_query." ORDER BY `Date` DESC LIMIT 30;";
 	$result = mysql_query($sql_query);	
