@@ -1,7 +1,8 @@
 This is a part of my HomeNet Project.
 
 The Arduino UNO is a sensor node which samples the temperature/humidity from the DHT22. The sensed data is sent to Raspberry Pi every 10 seconds. The UNO has a web service to display the current status. 
-The Project includes:
+
+The Arduino project includes:
 (1) HomeNet_WebSensor : originally from arduino 'Ethernet>WebServer' example
 (2) RTOS : the 'Arduino-PreemptiveOS' prject 
 (3) SysTime : get time by NTP and maintain the time service for whole project
