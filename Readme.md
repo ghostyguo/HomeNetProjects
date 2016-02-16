@@ -15,4 +15,4 @@ The NodeMCU is used as a pump motor controller.  <br>
 (2) The sensed data is sent to Raspberry Pi every 10 seconds. <br>
 (2) The controller is scheduled to turn on the relay which starts to pump water. <br>
 (3) When the water tower is full, the motor will stop automatically, and the current is near zero. <br>
-(4) The controller turn off the relay. <br>
+(4) The controller turn off the relay if the current is near zero. <br>
