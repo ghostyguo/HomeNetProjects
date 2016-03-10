@@ -1,4 +1,5 @@
 -- connect Wifi
 wifi.setmode(wifi.STATION)
-wifi.sta.config("MyStation","MyPasswd")
+wifi.sta.disconnect()
+wifi.sta.config("SSID","password")
 wifi.sta.autoconnect(1)

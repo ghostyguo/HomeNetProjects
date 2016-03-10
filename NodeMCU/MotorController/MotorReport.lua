@@ -4,18 +4,16 @@
 --  Note: this module needs the float version firmware : 
 --        nodemcu_float_0.9.6-dev_20150704.bin
 --
-local reportTimerID=2
-local sqlServer="192.168.2.211"
-local pinDHT=2
-local pinRelay=7
-local powerLimit=20
+local reportTimerID=_G["reportTimerID"] 
+local sqlServer=_G["sqlServer"] --SQL server, must be local in file to use post connection
+local powerThreshold=20         --Threshold of motor on/off
 
 --
 -- post()
 --
 function post(min,max,rms,t,h)
-    local conn = nil
-
+    local conn = nil    
+    
     -- receive()
     function receive(conn, payloadout)
         if (string.find(payloadout, "Status: 200 OK") ~= nil) then
@@ -52,10 +50,6 @@ function post(min,max,rms,t,h)
     conn:connect(80,sqlServer)
 end
 
--- variables
-avgPower=0      --global
-maxPower=0      --global    
-minPower=0      --global
 --
 -- report() 
 --
@@ -100,13 +94,13 @@ function report()
     print("min="..minPower..", max="..maxPower..", rms="..avgPower.."temp="..t.."hum="..h)
 
     -- do works
-    if (avgPower<powerLimit) then
+    if (avgPower<powerThreshold) then
         gpio.write(pinRelay, gpio.LOW) -- Pump motor is not running, turn the relay off
     end
     
     if(wifi.sta.getip()==nil) then
         print("***Motor: Wifi is not connected")
-        --dofile("ConnectWifi.lua")
+        dofile("ConnectWifi.lua")
     else
         post(minPower,maxPower,avgPower, t, h)
     end 
@@ -115,7 +109,6 @@ end
 --
 -- main()
 --
-gpio.mode(pinRelay, gpio.OUTPUT) 
 tmr.stop(reportTimerID) -- stop previous timer
 tmr.unregister(reportTimerID)
 tmr.register(reportTimerID, 10000, tmr.ALARM_AUTO, report)

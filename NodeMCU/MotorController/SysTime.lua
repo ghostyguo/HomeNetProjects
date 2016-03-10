@@ -1,19 +1,16 @@
 -- retrieve the current time from Google
 -- tested on NodeMCU 0.9.5 build 20150108
 
-local timerID=3
-local poolTick=0
-local pinRelay=7
-
-min=0   --global
-sec=0   --global
-hour=0  --global
-
+local systemTimerID=_G["systemTimerID"] 
 --
--- syncGoogleTime()
+-- syncSystemTime()
 --
-function syncGoogleTime()
-    conn=net.createConnection(net.TCP, 0) 
+function syncSystemTime()
+    
+    local actionFlag=false  --set to true if timer action in going
+    local actionPeriod = 5 --within 5 seconds    
+    local conn=net.createConnection(net.TCP, 0) 
+    
     conn:on("connection",
         function(conn, payload)
             conn:send("HEAD / HTTP/1.1\r\n".. 
@@ -53,24 +50,54 @@ function syncGoogleTime()
     end
 
     -- do works
-    if (hour==7 and min==0 and sec<10) then
+    if (hour==7 and min==0 and sec<actionPeriod and actionFlag==false) then
         gpio.write(pinRelay, gpio.HIGH) -- turn on the pump motor relay
+        actionFlag=true
+    end         
+    if (hour==7 and min==30 and sec<actionPeriod and actionFlag==false) then
+        gpio.write(pinRelay, gpio.LOW) -- turn off the pump motor relay
+        actionFlag=true
     end
-    if (hour==11 and min==0 and sec<10) then
+    if (hour==11 and min==0 and sec<actionPeriod and actionFlag==false) then
         gpio.write(pinRelay, gpio.HIGH) -- turn on the pump motor relay
+        actionFlag=true
     end
-    if (hour==17 and min==0 and sec<10) then
+    if (hour==11 and min==20 and sec<actionPeriod and actionFlag==false) then
+        gpio.write(pinRelay, gpio.LOW) -- turn off the pump motor relay
+        actionFlag=true
+    end
+    if (hour==17 and min==0 and sec<actionPeriod and actionFlag==false) then
         gpio.write(pinRelay, gpio.HIGH) -- turn on the pump motor relay
+        actionFlag=true
+    end               
+    if (hour==17 and min==20 and sec<actionPeriod and actionFlag==false) then
+        gpio.write(pinRelay, gpio.LOW) -- turn off the pump motor relay
+        actionFlag=true
     end
-               
-    if (poolTick<10) then
-        poolTick = poolTick+1
-    else
-        poolTick = 0
-        if (wifi.sta.getip()==nil) then
-            print("Network not connected...")
-        else
+
+    if (hour==0 and min==0 and sec<actionPeriod) then 
+        dofile("Stop.lua")
+        tmr.delay(1000000)
+        node.restart() --restart to rejoin the network everyday
+    end
+
+    if (sec>=actionPeriod) then
+        actionFlag=false -- not in the action period
+    end    
+    
+    --
+    -- switch ON
+    if (gpio.read(pinSwitch)==0) then --Switch Pressed?
+        gpio.write(pinRelay, gpio.HIGH)
+    end
+
+    -- NTP sync every minutes
+    if (sec==0) then
+        if (wifi.sta.getip()~=nil) then  -- Wifi connected?
             conn:connect(80,'google.com.tw') 
+        else    
+            print("Network not connected...")
+            dofile("ConnectWifi.lua")
         end
     end    
     print(hour..":"..min..":"..sec)  -- report time
@@ -79,12 +106,11 @@ end
 --
 -- main()
 --
-gpio.mode(pinRelay, gpio.OUTPUT) 
-tmr.stop(timerID) -- stop previous timer
-tmr.unregister(timerID)
-tmr.register(timerID, 1000, tmr.ALARM_AUTO,syncGoogleTime)
-if not tmr.start(timerID) then 
-    print("tmr.start("..timerID..") failed!") 
+tmr.stop(systemTimerID) -- stop previous timer
+tmr.unregister(systemTimerID)
+tmr.register(systemTimerID, 1000, tmr.ALARM_AUTO,syncSystemTime)
+if not tmr.start(systemTimerID) then 
+    print("tmr.start("..systemTimerID..") failed!") 
 end
 --
 print("start SysTime Service")
