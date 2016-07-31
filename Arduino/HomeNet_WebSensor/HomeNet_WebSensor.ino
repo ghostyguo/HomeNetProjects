@@ -11,7 +11,7 @@ byte mac[] = {0x00,0x1A,0x4B,0x38,0x0C,0x5C}; //clone from DLINK
 IPAddress ip(192, 168, 2, 177);
 EthernetServer localWebServer(80);
 EthernetClient remoteSqlClient;
-char remoteSqlServer[] = "192.168.2.211";
+char remoteSqlServer[] = "220.133.170.200";
 //IPAddress remoteSqlServer(192,168,2,211);
 
 dht DHT;
